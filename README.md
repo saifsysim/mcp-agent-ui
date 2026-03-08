@@ -1,60 +1,93 @@
 # mcp-agent-ui
 
-A web dashboard for running AI agents powered by [Claude](https://anthropic.com) and the [Model Context Protocol (MCP)](https://modelcontextprotocol.io).
+> Decoupled web dashboard for MCP agents — UI auto-discovers agents from the backend API
 
-Features:
-- 💬 **Live Chat** — ask Claude questions about any GitHub repo; watch every MCP tool call in real-time
-- 🗄️ **Repo Tracker** — local SQLite database tracking repo health (PRs, commits, contributors, etc.)
-- ⚡ **Streaming UI** — Server-Sent Events for real-time agent responses
+---
 
-## Architecture
+## What This Is
 
-```
-mcp-agent-ui/
-  app.py              ← FastAPI backend with SSE streaming
-  agent.py            ← Claude agentic loop
-  cli.py              ← Terminal interface
-  db.py               ← SQLite repo tracker database
-  tracker.py          ← GitHub stats fetcher
-  static/index.html   ← Dashboard UI
-  servers/
-    github/server.py  ← Bundled GitHub MCP server
-```
+This is the **frontend-only** repo. It serves the web UI and reads its agent list from the [`mcp-github-agent`](https://github.com/saifsysim/mcp-github-agent) backend. No agent logic lives here — adding agents to the backend automatically shows them in the UI.
 
-The bundled `servers/github/server.py` is also available as a standalone server at [mcp-servers](https://github.com/saifsysim/mcp-servers).
+---
 
 ## Setup
 
+### Step 1 — You need the backend running first
+
+This repo has no agent logic of its own. Clone and start the backend:
+
 ```bash
+git clone https://github.com/saifsysim/mcp-github-agent.git
+cd mcp-github-agent
 pip install -r requirements.txt
 cp .env.example .env
-# Edit .env and set your ANTHROPIC_API_KEY
+# Add your ANTHROPIC_API_KEY and GITHUB_TOKEN to .env (see backend README for details)
+python app.py
+# → Backend running on http://localhost:8000
 ```
+
+### Step 2 — Clone & install the UI
+
+```bash
+git clone https://github.com/saifsysim/mcp-agent-ui.git
+cd mcp-agent-ui
+pip install -r requirements.txt
+```
+
+### Step 3 — Configure
+
+```bash
+cp .env.example .env
+```
+
+`.env` contents:
+```env
+# URL of the mcp-github-agent backend
+MCP_BACKEND_URL=http://localhost:8000
+
+# Port this UI server listens on
+PORT=8001
+```
+
+> If your backend runs on a different host/port, update `MCP_BACKEND_URL` here.
+
+---
 
 ## Running
 
 ```bash
 python app.py
-# Open http://localhost:8000
 ```
 
-## Repo Tracker
+Open **[http://localhost:8001](http://localhost:8001)**
 
-The local SQLite database (`repos.db`) tracks:
+The UI will call `GET /api/agents` on the backend and render a card for every registered agent automatically.
 
-| Metric | Description |
-|---|---|
-| Stars / Forks | Repository popularity |
-| Open PRs | Current pull request count |
-| Commits (30d) | Activity over last 30 days |
-| Days since last commit | Freshness indicator |
-| Days since last merge | PR merge activity |
-| Top contributor | Most active committer |
-| Repo created date | Project age |
-| Health status | 🟢 Active / 🔵 Recent / 🟡 Quiet / 🔴 Stale |
+---
 
-## CLI Usage
+## How It Connects to the Backend
 
-```bash
-python cli.py --repo pallets/flask --ask "How much test coverage does this repo have?"
+```
+Browser → http://localhost:8001 → This repo (serves index.html)
+Browser → http://localhost:8000/api/agents   → Backend (agent cards)
+Browser → http://localhost:8000/api/chat     → Backend (SSE stream)
+Browser → http://localhost:8000/api/repos    → Backend (repo tracker)
+```
+
+The backend URL is injected into the HTML at serve-time via `window.MCP_BACKEND_URL` — so you can point this UI at a staging or production backend without rebuilding anything.
+
+---
+
+## Project Structure
+
+```
+mcp-agent-ui/
+├── app.py              # Thin static server — injects MCP_BACKEND_URL into HTML
+├── static/
+│   └── index.html      # Full dashboard UI (agent cards + chat + repo tracker)
+├── servers/
+│   └── github/
+│       └── server.py   # Bundled GitHub MCP server (for reference)
+├── requirements.txt    # fastapi, uvicorn, python-dotenv only
+└── .env.example
 ```
