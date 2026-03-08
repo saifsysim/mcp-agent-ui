@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Agents</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d0f17;
+      --surface: #13151f;
+      --surface2: #1a1d2e;
+      --surface3: #22263a;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e8eaf0;
+      --text-muted: #7c8098;
+      --accent: #7c6af7;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --orange: #fb923c;
+      --blue: #60a5fa;
+      --red: #f87171;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13, 15, 23, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #7c6af7, #a78bfa);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .topbar-title span {
+      color: var(--accent2);
+    }
+
+    .topbar-nav {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: rgba(124, 106, 247, 0.4);
+    }
+
+    /* Screens */
+    .screen {
+      display: none;
+      flex: 1;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* ── Dashboard ── */
+    #dashboard {
+      padding: 48px 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero {
+      margin-bottom: 56px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(124, 106, 247, 0.12);
+      border: 1px solid rgba(124, 106, 247, 0.3);
+      color: var(--accent2);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .hero-badge::before {
+      content: '●';
+      font-size: 8px;
+      color: var(--green);
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #e8eaf0 30%, #7c6af7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    .steps-row {
+      display: flex;
+      margin-bottom: 56px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .step {
+      flex: 1;
+      padding: 24px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+    }
+
+    .step:last-child {
+      border-right: none;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .step h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .step p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      display: block;
+    }
+
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .agent-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(124, 106, 247, 0.08), transparent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .agent-card:hover {
+      border-color: rgba(124, 106, 247, 0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .agent-card:hover::before {
+      opacity: 1;
+    }
+
+    .agent-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+      width: 64px;
+      height: 64px;
+      background: var(--surface2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+    }
+
+    .agent-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .agent-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .agent-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .agent-cta {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent2);
+    }
+
+    .agent-cta svg {
+      transition: transform 0.2s;
+    }
+
+    .agent-card:hover .agent-cta svg {
+      transform: translateX(4px);
+    }
+
+    .agent-card.coming-soon {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .agent-card.coming-soon:hover {
+      transform: none;
+      border-color: var(--border);
+      box-shadow: none;
+    }
+
+    .soon-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--surface3);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Repo Tracker Screen ── */
+    #repos-screen {
+      padding: 40px 32px;
+      overflow-y: auto;
+    }
+
+    .repos-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .repos-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .repos-header p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .add-repo-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .add-repo-btn:hover {
+      opacity: 0.85;
+    }
+
+    /* Stat cards row */
+    .stat-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+    }
+
+    .stat-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-card-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    /* Repo table */
+    .repos-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .repos-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .repos-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      white-space: nowrap;
+    }
+
+    .repos-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .repos-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .repos-table tr:hover td {
+      background: rgba(124, 106, 247, 0.04);
+    }
+
+    .repo-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .repo-icon {
+      font-size: 20px;
+    }
+
+    .repo-full-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .repo-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-green {
+      background: rgba(52, 211, 153, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .badge-orange {
+      background: rgba(251, 146, 60, 0.1);
+      color: var(--orange);
+      border: 1px solid rgba(251, 146, 60, 0.2);
+    }
+
+    .badge-red {
+      background: rgba(248, 113, 113, 0.1);
+      color: var(--red);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+    }
+
+    .badge-blue {
+      background: rgba(96, 165, 250, 0.1);
+      color: var(--blue);
+      border: 1px solid rgba(96, 165, 250, 0.2);
+    }
+
+    .badge-muted {
+      background: var(--surface3);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      border-color: rgba(124, 106, 247, 0.4);
+      color: var(--accent2);
+      background: rgba(124, 106, 247, 0.08);
+    }
+
+    .icon-btn.danger:hover {
+      border-color: rgba(248, 113, 113, 0.4);
+      color: var(--red);
+      background: rgba(248, 113, 113, 0.08);
+    }
+
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Empty repos state */
+    .repos-empty {
+      padding: 64px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .repos-empty .empty-icon {
+      font-size: 48px;
+      opacity: 0.3;
+      margin-bottom: 16px;
+    }
+
+    .repos-empty h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .repos-empty p {
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 360px;
+      margin: 0 auto 24px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      width: 480px;
+      max-width: 95vw;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(16px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .modal-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .modal-input:focus {
+      border-color: rgba(124, 106, 247, 0.5);
+    }
+
+    .modal-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.85;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    /* ── Chat Screen ── */
+    #chat-screen {
+      flex-direction: row;
+      height: calc(100vh - 69px);
+    }
+
+    .chat-sidebar {
+      width: 280px;
+      min-width: 280px;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    .sidebar-agent {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(124, 106, 247, 0.3);
+    }
+
+    .sidebar-agent-icon {
+      font-size: 24px;
+    }
+
+    .sidebar-agent-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .sidebar-agent-status {
+      font-size: 11px;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sidebar-agent-status::before {
+      content: '●';
+      font-size: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .example-questions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .example-q {
+      padding: 10px 12px;
+      background: var(--surface3);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      line-height: 1.4;
+    }
+
+    .example-q:hover {
+      border-color: rgba(124, 106, 247, 0.3);
+      color: var(--text);
+      background: rgba(124, 106, 247, 0.08);
+    }
+
+    .sidebar-tools {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tool-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tool-item::before {
+      content: '⚙';
+      font-size: 10px;
+    }
+
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .repo-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .repo-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .repo-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .repo-input:focus {
+      border-color: rgba(124, 106, 247, 0.5);
+    }
+
+    .repo-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .back-btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: var(--surface3);
+      border-radius: 3px;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .msg {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .msg-avatar.user {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+    }
+
+    .msg-avatar.agent {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+    }
+
+    .msg-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .msg-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .msg-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .msg-time {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .msg-bubble {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .msg.user .msg-bubble {
+      background: rgba(124, 106, 247, 0.12);
+      border-color: rgba(124, 106, 247, 0.25);
+    }
+
+    .tool-call-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--orange);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 4px 0;
+      font-size: 12px;
+    }
+
+    .tool-call-header {
+      color: var(--orange);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .tool-call-header::before {
+      content: '⚙ ';
+    }
+
+    .tool-call-input {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-top: 6px;
+      word-break: break-all;
+    }
+
+    .tool-result-card {
+      border-left-color: var(--green);
+    }
+
+    .tool-result-header {
+      color: var(--green);
+    }
+
+    .tool-result-header::before {
+      content: '✓ ';
+    }
+
+    .tool-result-preview {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-top: 6px;
+      white-space: pre-wrap;
+      max-height: 80px;
+      overflow: hidden;
+    }
+
+    .msg-bubble h1,
+    .msg-bubble h2,
+    .msg-bubble h3 {
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+
+    .msg-bubble h1 {
+      font-size: 18px;
+    }
+
+    .msg-bubble h2 {
+      font-size: 16px;
+    }
+
+    .msg-bubble h3 {
+      font-size: 14px;
+    }
+
+    .msg-bubble code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--surface3);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .msg-bubble pre {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+
+    .msg-bubble pre code {
+      background: transparent;
+      padding: 0;
+      font-size: 12px;
+    }
+
+    .msg-bubble ul,
+    .msg-bubble ol {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+
+    .msg-bubble li {
+      margin: 3px 0;
+    }
+
+    .msg-bubble strong {
+      font-weight: 600;
+    }
+
+    .msg-bubble table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin: 10px 0;
+    }
+
+    .msg-bubble th {
+      text-align: left;
+      padding: 6px 12px;
+      background: var(--surface3);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    .msg-bubble td {
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: fit-content;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      animation: bounce 1.4s infinite;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+
+      40% {
+        transform: translateY(-6px);
+        opacity: 1;
+      }
+    }
+
+    .input-bar {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 8px 8px 16px;
+      transition: border-color 0.2s;
+    }
+
+    .input-row:focus-within {
+      border-color: rgba(124, 106, 247, 0.5);
+    }
+
+    #question-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      max-height: 120px;
+      min-height: 24px;
+    }
+
+    #question-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .send-btn:hover {
+      opacity: 0.85;
+      transform: scale(1.05);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .input-hint {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .error-bubble {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--red);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Topbar -->
+  <nav class="topbar">
+    <div class="logo">⚡</div>
+    <span class="topbar-title">MCP <span>Agents</span></span>
+    <div class="topbar-nav">
+      <button class="nav-btn active" id="nav-agents" onclick="showScreen('dashboard')">Agents</button>
+      <button class="nav-btn" id="nav-repos" onclick="showScreen('repos')">Repo Tracker</button>
+      <button class="nav-btn" id="chat-nav-btn" onclick="openLastAgent()" style="display:none">Chat</button>
+    </div>
+  </nav>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="screen active">
+    <div style="padding:48px 32px;max-width:1100px;margin:0 auto;width:100%">
+      <div class="hero">
+        <div class="hero-badge">Live MCP Agent System</div>
+        <h1>Your AI Agents,<br />Connected to Everything</h1>
+        <p>Select an agent below to start a chat. Each agent connects Claude to a live data source using the Model
+          Context Protocol.</p>
+      </div>
+      <div class="steps-row">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Pick an Agent</h3>
+          <p>Choose from agents that connect to GitHub, Jira, and more.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Enter a Repo / Resource</h3>
+          <p>Point the agent at the data source you want to query.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Ask in Plain English</h3>
+          <p>Claude uses MCP tools to fetch live data and answer your question.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <h3>See the Agent Think</h3>
+          <p>Watch every tool call and result in real-time before the final answer.</p>
+        </div>
+      </div>
+      <div class="section-title">Available Agents</div>
+      <div class="agents-grid" id="agents-grid"></div>
+    </div>
+  </div>
+
+  <!-- Repo Tracker Screen -->
+  <div id="repos-screen" class="screen">
+    <div style="max-width:1200px;margin:0 auto;width:100%">
+      <div class="repos-header">
+        <div>
+          <h2>🗄️ Repo Tracker</h2>
+          <p>Track GitHub repo health metrics — PRs, commits, contributors, and more — stored locally.</p>
+        </div>
+        <button class="add-repo-btn" onclick="openAddModal()">
+          <span style="font-size:18px">+</span> Track a Repo
+        </button>
+      </div>
+
+      <!-- Summary stat cards -->
+      <div class="stat-cards" id="stat-cards">
+        <div class="stat-card">
+          <div class="stat-card-label">Repos Tracked</div>
+          <div class="stat-card-value" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Total Open PRs</div>
+          <div class="stat-card-value" id="stat-prs">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Total Stars</div>
+          <div class="stat-card-value" id="stat-stars">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Most Active</div>
+          <div class="stat-card-value" id="stat-active" style="font-size:16px">—</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="repos-table-wrap" id="repos-table-wrap">
+        <div class="repos-empty" id="repos-empty">
+          <div class="empty-icon">📦</div>
+          <h3>No repos tracked yet</h3>
+          <p>Click "Track a Repo" to start monitoring a GitHub repository's health metrics.</p>
+          <button class="add-repo-btn" onclick="openAddModal()">+ Track your first repo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Screen -->
+  <div id="chat-screen" class="screen">
+    <aside class="chat-sidebar">
+      <div class="sidebar-agent">
+        <div class="sidebar-agent-icon" id="sidebar-icon">🐙</div>
+        <div>
+          <div class="sidebar-agent-name" id="sidebar-name">GitHub Agent</div>
+          <div class="sidebar-agent-status">Connected</div>
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-section-title">Example Questions</div>
+        <div class="example-questions" id="example-questions"></div>
+      </div>
+      <div>
+        <div class="sidebar-section-title">Available Tools</div>
+        <div class="sidebar-tools" id="sidebar-tools"></div>
+      </div>
+    </aside>
+    <div class="chat-main">
+      <div class="repo-bar">
+        <button class="back-btn" onclick="showScreen('dashboard')">← Back</button>
+        <span class="repo-label">Repository:</span>
+        <input id="repo-input" class="repo-input" type="text" placeholder="e.g. pallets/flask or full GitHub URL" />
+      </div>
+      <div class="messages" id="messages">
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">🤖</div>
+          <h3>Ready to analyze</h3>
+          <p>Enter a GitHub repository URL above and ask any question about the codebase.</p>
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-row">
+          <textarea id="question-input" rows="1" placeholder="Ask anything about the repo…" onkeydown="handleKey(event)"
+            oninput="autoResize(this)"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint">Claude analyzes live GitHub data using MCP tools · Press Enter to send</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Repo Modal -->
+  <div class="modal-overlay" id="add-modal" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <h2>Track a Repository</h2>
+      <p>Enter a GitHub repo to start tracking its health metrics. Stats will be fetched immediately.</p>
+      <input id="add-repo-input" class="modal-input" type="text"
+        placeholder="owner/repo  or  https://github.com/owner/repo"
+        onkeydown="if(event.key==='Enter') confirmAddRepo()" />
+      <div id="add-repo-error" style="color:var(--red);font-size:13px;margin-bottom:12px;display:none"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+        <button class="btn-primary" id="add-confirm-btn" onclick="confirmAddRepo()">Fetch & Track</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// ── State ─────────────────────────────────────────────────────────────────
+let currentAgent = null;
+let isLoading = false;
+const GITHUB_TOOLS = ['get_repo_info','get_languages','get_contributors','list_files','read_file','search_code','get_commit_history','list_issues','list_pull_requests','analyze_tests'];
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const screenMap = { dashboard: 'dashboard', repos: 'repos-screen', chat: 'chat-screen' };
+  const navMap = { dashboard: 'nav-agents', repos: 'nav-repos' };
+  document.getElementById(screenMap[id]).classList.add('active');
+  if (navMap[id]) document.getElementById(navMap[id]).classList.add('active');
+  if (id === 'repos') loadRepos();
+}
+
+function openLastAgent() { if (currentAgent) showScreen('chat'); }
+
+// ── Dashboard / Agents ────────────────────────────────────────────────────
+async function loadAgents() {
+  try {
+    const res = await fetch('/api/agents');
+    const data = await res.json();
+    renderAgents(data.agents);
+  } catch (e) { console.error('Could not load agents', e); }
+}
+
+function renderAgents(agents) {
+  const grid = document.getElementById('agents-grid');
+  agents.forEach(agent => {
+    const card = document.createElement('div');
+    card.className = 'agent-card';
+    card.innerHTML = `
+      <div class="agent-icon">${agent.icon}</div>
+      <div class="agent-name">${agent.name}</div>
+      <div class="agent-desc">${agent.description}</div>
+      <div class="agent-tags">${(agent.example_questions||[]).slice(0,3).map(q=>`<span class="tag">${q.split(' ').slice(0,4).join(' ')}…</span>`).join('')}</div>
+      <div class="agent-cta">Open Chat <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>`;
+    card.onclick = () => openAgent(agent);
+    grid.appendChild(card);
+  });
+  const comingSoon = [
+    { icon:'📋', name:'Jira Agent', desc:'Query sprints, issues, epics, and boards in plain English.' },
+    { icon:'📊', name:'Analytics Agent', desc:'Ask questions about your data warehouse or ClickHouse tables.' },
+    { icon:'🗄️', name:'Database Agent', desc:'Schema exploration and query analysis for SQL databases.' },
+  ];
+  comingSoon.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'agent-card coming-soon';
+    card.innerHTML = `<div class="soon-badge">Coming Soon</div><div class="agent-icon">${a.icon}</div><div class="agent-name">${a.name}</div><div class="agent-desc">${a.desc}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function openAgent(agent) {
+  currentAgent = agent;
+  document.getElementById('sidebar-icon').textContent = agent.icon;
+  document.getElementById('sidebar-name').textContent = agent.name;
+  document.getElementById('repo-input').placeholder = agent.placeholder_repo;
+  const eq = document.getElementById('example-questions');
+  eq.innerHTML = '';
+  (agent.example_questions||[]).forEach(q => {
+    const el = document.createElement('div');
+    el.className = 'example-q';
+    el.textContent = q;
+    el.onclick = () => { document.getElementById('question-input').value = q; autoResize(document.getElementById('question-input')); };
+    eq.appendChild(el);
+  });
+  const st = document.getElementById('sidebar-tools');
+  st.innerHTML = '';
+  GITHUB_TOOLS.forEach(t => { const el = document.createElement('div'); el.className = 'tool-item'; el.textContent = t; st.appendChild(el); });
+  document.getElementById('chat-nav-btn').style.display = '';
+  clearMessages();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('chat-screen').classList.add('active');
+}
+
+// ── Repo Tracker ──────────────────────────────────────────────────────────
+async function loadRepos() {
+  try {
+    const res = await fetch('/api/repos');
+    const data = await res.json();
+    renderReposTable(data.repos);
+    updateStatCards(data.repos);
+  } catch (e) { console.error('Error loading repos', e); }
+}
+
+function updateStatCards(repos) {
+  document.getElementById('stat-total').textContent = repos.length;
+  const totalPRs = repos.reduce((s, r) => s + (r.open_prs || 0), 0);
+  const totalStars = repos.reduce((s, r) => s + (r.stars || 0), 0);
+  document.getElementById('stat-prs').textContent = totalPRs;
+  document.getElementById('stat-stars').textContent = totalStars >= 1000 ? (totalStars/1000).toFixed(1)+'k' : totalStars;
+  const mostActive = repos.sort((a,b) => (b.commits_last_30_days||0) - (a.commits_last_30_days||0))[0];
+  document.getElementById('stat-active').textContent = mostActive ? mostActive.full_name.split('/')[1] : '—';
+}
+
+function renderReposTable(repos) {
+  const wrap = document.getElementById('repos-table-wrap');
+  const empty = document.getElementById('repos-empty');
+  if (!repos.length) {
+    wrap.innerHTML = '';
+    wrap.appendChild(empty || createEmptyEl());
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="repos-table">
+      <thead>
+        <tr>
+          <th>Repository</th>
+          <th>Language</th>
+          <th>Stars</th>
+          <th>Open PRs</th>
+          <th>Issues</th>
+          <th>Commits (30d)</th>
+          <th>Last Commit</th>
+          <th>Last Merge</th>
+          <th>Top Contributor</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="repos-tbody"></tbody>
+    </table>`;
+  const tbody = document.getElementById('repos-tbody');
+  repos.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="repo-name-cell">
+          <span class="repo-icon">🐙</span>
+          <div>
+            <div class="repo-full-name">${r.full_name}</div>
+            <div class="repo-desc">${r.description || '—'}</div>
+          </div>
+        </div>
+      </td>
+      <td>${r.primary_language ? `<span class="badge badge-blue">${r.primary_language}</span>` : '—'}</td>
+      <td class="mono">⭐ ${fmtNum(r.stars)}</td>
+      <td>${r.open_prs != null ? `<span class="badge ${r.open_prs > 20 ? 'badge-orange' : 'badge-green'}">${r.open_prs} PRs</span>` : '—'}</td>
+      <td class="mono">${fmtNum(r.open_issues)}</td>
+      <td>${r.commits_last_30_days != null ? `<span class="badge ${r.commits_last_30_days > 50 ? 'badge-green' : r.commits_last_30_days > 10 ? 'badge-blue' : 'badge-muted'}">${r.commits_last_30_days}</span>` : '—'}</td>
+      <td class="mono">${r.days_since_last_commit != null ? ageDays(r.days_since_last_commit) : '—'}</td>
+      <td class="mono">${r.days_since_last_merge != null ? ageDays(r.days_since_last_merge) : '—'}</td>
+      <td>${r.top_contributor ? `<span class="badge badge-muted">@${r.top_contributor} (${fmtNum(r.top_contributor_commits)})</span>` : '—'}</td>
+      <td class="mono">${r.repo_created_at ? r.repo_created_at.slice(0,10) : '—'}</td>
+      <td>${healthBadge(r)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn" title="Refresh" onclick="refreshRepo(${r.id}, this)">↻</button>
+          <button class="icon-btn" title="Ask Claude" onclick="chatAboutRepo('${r.full_name}')">💬</button>
+          <button class="icon-btn danger" title="Remove" onclick="deleteRepo(${r.id})">🗑</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function createEmptyEl() {
+  const div = document.createElement('div');
+  div.id = 'repos-empty';
+  div.className = 'repos-empty';
+  div.innerHTML = `<div class="empty-icon">📦</div><h3>No repos tracked yet</h3><p>Click "Track a Repo" to start monitoring a GitHub repository's health metrics.</p><button class="add-repo-btn" onclick="openAddModal()">+ Track your first repo</button>`;
+  return div;
+}
+
+function healthBadge(r) {
+  if (!r.days_since_last_commit) return `<span class="badge badge-muted">Unknown</span>`;
+  if (r.days_since_last_commit <= 7) return `<span class="badge badge-green">🟢 Active</span>`;
+  if (r.days_since_last_commit <= 30) return `<span class="badge badge-blue">🔵 Recent</span>`;
+  if (r.days_since_last_commit <= 90) return `<span class="badge badge-orange">🟡 Quiet</span>`;
+  return `<span class="badge badge-red">🔴 Stale</span>`;
+}
+
+function ageDays(d) {
+  if (d === 0) return 'Today';
+  if (d === 1) return '1d ago';
+  if (d < 30) return `${d}d ago`;
+  if (d < 365) return `${Math.round(d/30)}mo ago`;
+  return `${Math.round(d/365)}y ago`;
+}
+function fmtNum(n) { if (n == null) return '—'; return n >= 1000 ? (n/1000).toFixed(1)+'k' : n; }
+
+// ── Add / Refresh / Delete ─────────────────────────────────────────────────
+function openAddModal() {
+  document.getElementById('add-modal').classList.add('open');
+  document.getElementById('add-repo-input').value = '';
+  document.getElementById('add-repo-error').style.display = 'none';
+  setTimeout(() => document.getElementById('add-repo-input').focus(), 100);
+}
+function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('add-modal')) closeAddModal(); }
+
+async function confirmAddRepo() {
+  const input = document.getElementById('add-repo-input').value.trim();
+  const errEl = document.getElementById('add-repo-error');
+  const btn = document.getElementById('add-confirm-btn');
+  if (!input) { errEl.textContent = 'Please enter a repo name.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Fetching…';
+  try {
+    const res = await fetch('/api/repos/track', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ repo: input }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Failed to track repo');
+    closeAddModal();
+    await loadRepos();
+  } catch (e) {
+    errEl.textContent = '⚠ ' + e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Fetch & Track';
+  }
+}
+
+async function refreshRepo(repoId, btn) {
+  const origText = btn.textContent;
+  btn.textContent = '⟳';
+  btn.classList.add('spin');
+  btn.disabled = true;
+  try {
+    await fetch(`/api/repos/${repoId}/refresh`, { method: 'POST' });
+    await loadRepos();
+  } finally {
+    btn.classList.remove('spin');
+    btn.textContent = origText;
+    btn.disabled = false;
+  }
+}
+
+async function deleteRepo(repoId) {
+  if (!confirm('Remove this repo from tracking?')) return;
+  await fetch(`/api/repos/${repoId}`, { method: 'DELETE' });
+  await loadRepos();
+}
+
+function chatAboutRepo(fullName) {
+  const githubAgent = { id:'github', name:'GitHub Agent', icon:'🐙', placeholder_repo:'e.g. pallets/flask', example_questions:['How much test coverage does this repo have?','Who are the top contributors?','What open issues are labeled \'bug\'?','What languages are used in this repo?','Show me the recent commit history','Are there any open pull requests?'] };
+  openAgent(githubAgent);
+  setTimeout(() => { document.getElementById('repo-input').value = fullName; }, 100);
+}
+
+// ── Chat Logic ─────────────────────────────────────────────────────────────
+function clearMessages() {
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = `<div class="empty-state" id="empty-state"><div class="empty-icon">🤖</div><h3>Ready to analyze</h3><p>Enter a GitHub repository URL above and ask any question about the codebase.</p></div>`;
+}
+
+function hideEmpty() { const e = document.getElementById('empty-state'); if (e) e.remove(); }
+
+function appendUserMsg(text) {
+  hideEmpty();
+  const msgs = document.getElementById('messages');
+  const now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const el = document.createElement('div');
+  el.className = 'msg';
+  el.innerHTML = `<div class="msg-avatar user">🧑</div><div class="msg-body"><div class="msg-header"><span class="msg-name">You</span><span class="msg-time">${now}</span></div><div class="msg-bubble">${escHtml(text)}</div></div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendAgentMsg() {
+  hideEmpty();
+  const msgs = document.getElementById('messages');
+  const now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const el = document.createElement('div');
+  el.className = 'msg';
+  el.innerHTML = `<div class="msg-avatar agent">${currentAgent?.icon||'🤖'}</div><div class="msg-body"><div class="msg-header"><span class="msg-name">${currentAgent?.name||'Agent'}</span><span class="msg-time">${now}</span></div><div class="msg-bubble-container"></div></div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el.querySelector('.msg-bubble-container');
+}
+
+function addTypingIndicator(c) { const el = document.createElement('div'); el.className='typing'; el.id='typing-ind'; el.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>'; c.appendChild(el); document.getElementById('messages').scrollTop=9999; }
+function removeTypingIndicator() { const e = document.getElementById('typing-ind'); if (e) e.remove(); }
+
+function addToolCall(c, tool, input) { removeTypingIndicator(); const el = document.createElement('div'); el.className='tool-call-card'; el.innerHTML=`<div class="tool-call-header">Calling: ${tool}</div><div class="tool-call-input">${JSON.stringify(input)}</div>`; c.appendChild(el); document.getElementById('messages').scrollTop=9999; }
+function addToolResult(c, tool, preview) { const el = document.createElement('div'); el.className='tool-call-card tool-result-card'; el.innerHTML=`<div class="tool-call-header tool-result-header">Result: ${tool}</div><div class="tool-result-preview">${escHtml(preview)}</div>`; c.appendChild(el); document.getElementById('messages').scrollTop=9999; }
+function addAnswer(c, md) { removeTypingIndicator(); const el = document.createElement('div'); el.className='msg-bubble'; el.innerHTML=simpleMarkdown(md); c.appendChild(el); document.getElementById('messages').scrollTop=9999; }
+function addError(c, text) { removeTypingIndicator(); const el = document.createElement('div'); el.className='error-bubble'; el.textContent='⚠ '+text; c.appendChild(el); document.getElementById('messages').scrollTop=9999; }
+
+async function sendMessage() {
+  if (isLoading) return;
+  const q = document.getElementById('question-input').value.trim();
+  const repo = document.getElementById('repo-input').value.trim();
+  if (!q) return;
+  if (!repo) { document.getElementById('repo-input').style.borderColor='rgba(248,113,113,0.6)'; setTimeout(()=>document.getElementById('repo-input').style.borderColor='',2000); return; }
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('question-input').value = '';
+  autoResize(document.getElementById('question-input'));
+  appendUserMsg(q);
+  const container = appendAgentMsg();
+  addTypingIndicator(container);
+  try {
+    const res = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({agent_id:currentAgent?.id||'github', repo, question:q}) });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value,{stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (raw === '[DONE]') break;
+        try {
+          const ev = JSON.parse(raw);
+          if (ev.type==='tool_call') addToolCall(container, ev.tool, ev.input);
+          else if (ev.type==='tool_result') addToolResult(container, ev.tool, ev.preview);
+          else if (ev.type==='answer') addAnswer(container, ev.text);
+          else if (ev.type==='error') addError(container, ev.text);
+        } catch(_) {}
+      }
+    }
+  } catch(e) { addError(container,'Network error: '+e.message); }
+  finally { removeTypingIndicator(); isLoading=false; document.getElementById('send-btn').disabled=false; }
+}
+
+function handleKey(e) { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function simpleMarkdown(md) {
+  return md
+    .replace(/```[\s\S]*?```/g, m => { const code = m.replace(/^```\w*\n?/,'').replace(/```$/,''); return `<pre><code>${escHtml(code)}</code></pre>`; })
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m=>`<ul>${m}</ul>`)
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br>');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadAgents();
+  </script>
+</body>
+
+</html>
